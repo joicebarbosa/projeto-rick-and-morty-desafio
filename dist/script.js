@@ -7,13 +7,14 @@ const detailsContainer = document.getElementById('character-details');
 const closeButton = document.querySelector('.close-button');
 const prevPageButton = document.getElementById('prev-page-button');
 const nextPageButton = document.getElementById('next-page-button');
+const paginationContainer = document.querySelector('.pagination-container');
 let currentPage = 1;
 // Evento de busca principal
 searchButton.addEventListener('click', async (event) => {
     event.preventDefault();
     const characterName = searchInput.value;
     if (characterName) {
-        currentPage = 1; // Reseta a página para 1 em uma nova busca
+        currentPage = 1;
         await fetchCharacters(characterName, currentPage);
     }
 });
@@ -28,7 +29,7 @@ nextPageButton.addEventListener('click', async () => {
 // Evento para a página anterior
 prevPageButton.addEventListener('click', async () => {
     const characterName = searchInput.value;
-    if (characterName && currentPage > 1) { // Garante que a página não seja menor que 1
+    if (characterName && currentPage > 1) {
         currentPage--;
         await fetchCharacters(characterName, currentPage);
     }
@@ -73,6 +74,9 @@ async function fetchCharacters(name, page) {
         const data = await response.json();
         const characters = data.data.characters.results;
         renderCharacters(characters);
+        // Mostra os containers de resultados e paginação
+        charactersContainer.style.display = 'grid';
+        paginationContainer.style.display = 'flex';
     }
     catch (error) {
         console.error('Falha ao buscar personagens:', error);
@@ -80,10 +84,12 @@ async function fetchCharacters(name, page) {
 }
 // Função para renderizar os cards dos personagens
 function renderCharacters(characters) {
-    charactersContainer.innerHTML = ''; // Limpa o contêiner
-    characters.forEach(character => {
+    charactersContainer.innerHTML = '';
+    characters.forEach((character, index) => {
         const characterCard = document.createElement('div');
         characterCard.classList.add('character-card');
+        // Efeito de animação em cascata
+        characterCard.style.animationDelay = `${index * 0.1}s`;
         characterCard.addEventListener('click', () => {
             showCharacterDetails(character.id);
         });
@@ -142,5 +148,54 @@ async function showCharacterDetails(id) {
     catch (error) {
         console.error('Falha ao buscar detalhes do personagem:', error);
     }
+}
+// Inicialização da biblioteca de partículas
+if (typeof particlesJS !== 'undefined') {
+    particlesJS('particles-js', {
+        "particles": {
+            "number": {
+                "value": 80,
+                "density": {
+                    "enable": true,
+                    "value_area": 800
+                }
+            },
+            "color": {
+                "value": "#00c853"
+            },
+            "shape": {
+                "type": "circle"
+            },
+            "opacity": {
+                "value": 0.5,
+                "random": false
+            },
+            "size": {
+                "value": 3,
+                "random": true
+            },
+            "line_linked": {
+                "enable": true,
+                "distance": 150,
+                "color": "#00c853",
+                "opacity": 0.4,
+                "width": 1
+            }
+        },
+        "interactivity": {
+            "detect_on": "canvas",
+            "events": {
+                "onhover": {
+                    "enable": true,
+                    "mode": "repulse"
+                },
+                "onclick": {
+                    "enable": true,
+                    "mode": "push"
+                },
+                "resize": true
+            }
+        }
+    });
 }
 //# sourceMappingURL=script.js.map

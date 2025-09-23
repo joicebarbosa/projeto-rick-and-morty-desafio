@@ -1,19 +1,29 @@
 /* ================================================= */
 /* Estilos da página principal (Body e Container)    */
 /* ================================================= */
+#particles-js {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1; /* Garante que as partículas fiquem atrás do conteúdo */
+}
 
 body {
     margin: 0;
     padding: 20px;
     display: flex;
     flex-direction: column;
-    align-items: center;
+    justify-content: center; /* Centraliza verticalmente */
+    align-items: center; /* Centraliza horizontalmente */
     min-height: 100vh;
     background-image: url('../public/assets/background.png');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    font-family: Arial, sans-serif;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Fonte mais moderna */
+    color: #e0e0e0; /* Cor de texto clara para contraste */
     box-sizing: border-box;
 }
 
@@ -24,6 +34,7 @@ body {
     flex-direction: column;
     align-items: center;
     gap: 30px;
+    margin-top: -200px;
 }
 
 .logo {
@@ -33,37 +44,53 @@ body {
 
 .search-form {
     width: 100%;
+    max-width: 400px; 
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     align-items: center;
-    gap: 15px;
-    max-width: 200px; 
+    gap: 10px;
+    margin-top: 20px;
+    
 }
 
 .search-input {
-    width: 100%;
+    flex-grow: 1;
     padding: 10px;
     border-radius: 5px;
-    border: 16px solid #ccc;
-    font-size: 5px;
-    text-align: center;
+    border: 2px solid #00c853;
+    background-color: rgb(30, 30, 30, 0.8);
+    color: #e0e0e0;
+    font-size: 1.1em;
+    text-align: left;
+    outline: none;
+    transition: border-color 0.3 ease;
+    
+    
+}
+
+.search-input::placeholder {
+    color: #a0a0a0; /* Cor do placeholder */
+}
+
+.search-input:focus {
+    border-color: #00e676; /* Cor da borda ao focar */
 }
 
 .search-button {
-    width: 100%;
-    padding: 10px 20px;
+    padding: 12px 25px; /* Ajusta o padding */
     border: none;
-    background-color: #007bff;
+    background-color: #00c853; /* Cor do botão (verde neon) */
     color: white;
-    border-radius: 5px;
+    border-radius: 8px; /* Borda arredondada */
     cursor: pointer;
-    font-size: 16px;
+    font-size: 1.1em;
+    transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
 .search-button:hover {
-    background-color: #0056b3;
+    background-color: #00e676; /* Efeito hover */
+    transform: scale(1.05); /* Pequena animação no hover */
 }
-
 /* ================================================= */
 /* Estilos para os Cards de Personagem e Paginação   */
 /* ================================================= */
@@ -90,10 +117,18 @@ body {
     align-items: center;
     justify-content: space-between;
     min-height: 250px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    position: relative;
+    overflow: hidden;
 }
 
+.characters-container .character-card {
+    animation: fadeInAndUp 0.5s ease-out forwards;
+    /* Adicione um delay para a animação aparecer em sequência */
+}
 .character-card:hover {
-    transform: translateY(-5px);
+    transform: translateY(-5px) scale(1.02);
+    box-shadow: 0 0 20px 5px rgba(0, 200, 83, 0.5); /* Brilho neon */
 }
 
 .character-card img {
@@ -109,7 +144,7 @@ body {
 }
 
 .pagination-container {
-    display: flex;
+    display: none;
     justify-content: center;
     gap: 20px;
     margin: 20px 0;
@@ -186,11 +221,27 @@ body {
     margin-bottom: 15px;
 }
 
+@keyframes fadeInAndUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 /* ================================================= */
 /* Media Query para Telas Maiores (Desktop)          */
 /* ================================================= */
 
 @media (min-width: 769px) {
+    
+    .container {
+        margin-top: -150px;
+    }
+
     .search-form {
         flex-direction: row;
         align-items: stretch;
@@ -206,4 +257,6 @@ body {
     .search-button {
         width: auto;
     }
+
+
 }
