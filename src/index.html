@@ -17,23 +17,24 @@
             <button type="submit" id="search-button" class="search-button">Buscar</button>
         </form>
         <section id="characters-container" class="characters-container"></section>
+        
         <div class="pagination-container">
             <button id="prev-page-button" class="page-button">Anterior</button>
+            <div id="page-numbers-container"></div> 
             <button id="next-page-button" class="page-button">Próxima</button>
         </div>
+        
     </main>
-   
-    <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
-    <script src="../dist/script.js"></script>
     
     <div id="modal" class="modal">
-        <div class="modal-content">
+        <div id="character-details" class="modal-content">
             <span class="close-button">&times;</span>
-            <div id="character-details">
-            </div>
         </div>
     </div>
     
-    
+    <div id="global-tooltip" class="character-tooltip"></div> 
+
+    <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+    <script src="../dist/script.js"></script>
 </body>
 </html>

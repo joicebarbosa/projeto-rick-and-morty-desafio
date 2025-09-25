@@ -6,38 +6,48 @@ const charactersContainer = document.getElementById('characters-container') as H
 const modal = document.getElementById('modal') as HTMLElement;
 const detailsContainer = document.getElementById('character-details') as HTMLElement;
 const closeButton = document.querySelector('.close-button') as HTMLElement;
+
+// Elementos de Paginação
 const prevPageButton = document.getElementById('prev-page-button') as HTMLButtonElement;
 const nextPageButton = document.getElementById('next-page-button') as HTMLButtonElement;
 const paginationContainer = document.querySelector('.pagination-container') as HTMLElement;
+const pageNumbersContainer = document.getElementById('page-numbers-container') as HTMLElement; // Container para os números dinâmicos
+
+// Elemento do Tooltip Global
+const globalTooltip = document.getElementById('global-tooltip') as HTMLElement; 
 
 let currentPage = 1;
+let totalPages = 1; // Variável para armazenar o número total de páginas
 
-// Evento de busca principal
+// =========================================================
+// 1. EVENTOS DE NAVEGAÇÃO
+// =========================================================
+
 searchButton.addEventListener('click', async (event) => {
     event.preventDefault();
     const characterName = searchInput.value;
 
     if (characterName) {
-        currentPage = 1;
+        currentPage = 1; // Reseta para a primeira página na busca
         await fetchCharacters(characterName, currentPage);
     }
 });
 
-// Evento para a página seguinte
 nextPageButton.addEventListener('click', async () => {
     const characterName = searchInput.value;
-    if (characterName) {
+    if (characterName && currentPage < totalPages) { 
         currentPage++;
         await fetchCharacters(characterName, currentPage);
+        // Não precisamos chamar updatePagination/renderPageNumbers aqui, pois já são chamados em fetchCharacters
     }
 });
 
-// Evento para a página anterior
 prevPageButton.addEventListener('click', async () => {
     const characterName = searchInput.value;
-    if (characterName && currentPage > 1) {
+    if (characterName && currentPage > 1) { 
         currentPage--;
         await fetchCharacters(characterName, currentPage);
+        // Não precisamos chamar updatePagination/renderPageNumbers aqui, pois já são chamados em fetchCharacters
     }
 });
 
@@ -45,7 +55,10 @@ closeButton.addEventListener('click', () => {
     modal.classList.remove('modal-visible');
 });
 
-// Função para buscar os personagens
+// =========================================================
+// 2. LÓGICA DE BUSCA
+// =========================================================
+
 async function fetchCharacters(name: string, page: number) {
     const query = `
         query GetCharactersByName($name: String!, $page: Int!) {
@@ -53,6 +66,7 @@ async function fetchCharacters(name: string, page: number) {
                 info {
                     next
                     prev
+                    pages
                 }
                 results {
                     id
@@ -65,39 +79,149 @@ async function fetchCharacters(name: string, page: number) {
         }
     `;
 
-    const variables = {
-        name: name,
-        page: page
-    };
+    const variables = { name: name, page: page };
 
     try {
         const response = await fetch('https://rickandmortyapi.com/graphql', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ query, variables }),
         });
 
-        if (!response.ok) {
-            throw new Error(`Erro na rede: ${response.statusText}`);
-        }
+        if (!response.ok) throw new Error(`Erro na rede: ${response.statusText}`);
 
         const data = await response.json();
+        const info = data.data.characters.info;
         const characters = data.data.characters.results;
         
-        renderCharacters(characters);
+        // Atualiza o total de páginas
+        totalPages = info.pages;
 
-        // Mostra os containers de resultados e paginação
+        renderCharacters(characters);
+        updatePagination(info.prev, info.next); 
+
         charactersContainer.style.display = 'grid'; 
         paginationContainer.style.display = 'flex'; 
 
     } catch (error) {
         console.error('Falha ao buscar personagens:', error);
+        charactersContainer.innerHTML = `<p class="error-message">Nenhum personagem encontrado com o nome "${name}" ou ocorreu um erro.</p>`;
+        paginationContainer.style.display = 'none';
+        totalPages = 1; 
+        currentPage = 1;
     }
 }
 
-// Função para renderizar os cards dos personagens
+// =========================================================
+// 3. LÓGICA DE RENDERIZAÇÃO DE PAGINAÇÃO
+// =========================================================
+
+/**
+ * Mudar de página ao clicar em um número
+ */
+async function goToPage(pageNumber: number) {
+    if (pageNumber !== currentPage && pageNumber > 0 && pageNumber <= totalPages) {
+        const characterName = searchInput.value;
+        currentPage = pageNumber;
+        await fetchCharacters(characterName, currentPage);
+    }
+}
+
+/**
+ * Cria um único botão de página numerado.
+ */
+function createPageButton(pageNumber: number, container: HTMLElement) {
+    const button = document.createElement('button');
+    button.textContent = pageNumber.toString();
+    button.classList.add('page-number-button');
+    
+    if (pageNumber === currentPage) {
+        button.classList.add('active');
+    } else {
+        button.addEventListener('click', () => goToPage(pageNumber));
+    }
+    
+    container.appendChild(button);
+}
+
+/**
+ * Gera e injeta os botões de número de página dinamicamente (Mini-Display).
+ */
+function renderPageNumbers() {
+    pageNumbersContainer.innerHTML = '';
+    
+    // Se não houver páginas, sai da função
+    if (totalPages <= 1) return;
+
+    const maxButtons = 5; // Máximo de números de página visíveis (além da primeira/última)
+    let startPage = 1;
+    let endPage = totalPages;
+
+    if (totalPages > maxButtons) {
+        // Lógica para calcular a faixa de exibição
+        let range = Math.floor(maxButtons / 2);
+        startPage = currentPage - range;
+        endPage = currentPage + range;
+
+        // Ajuste para o início
+        if (startPage < 1) {
+            startPage = 1;
+            endPage = maxButtons;
+        }
+
+        // Ajuste para o final
+        if (endPage > totalPages) {
+            endPage = totalPages;
+            startPage = totalPages - maxButtons + 1;
+        }
+        
+        if (startPage < 1) startPage = 1; // Última verificação para garantir o mínimo
+    }
+
+    // 1. Adiciona a primeira página e reticências se necessário
+    if (startPage > 1) {
+        createPageButton(1, pageNumbersContainer);
+        if (startPage > 2) {
+            const ellipsis = document.createElement('span');
+            ellipsis.className = 'page-ellipsis';
+            ellipsis.textContent = '...';
+            pageNumbersContainer.appendChild(ellipsis);
+        }
+    }
+
+    // 2. Adiciona os botões centrais/da faixa
+    for (let i = startPage; i <= endPage; i++) {
+        createPageButton(i, pageNumbersContainer);
+    }
+
+    // 3. Adiciona a última página e reticências se necessário
+    if (endPage < totalPages) {
+        if (endPage < totalPages - 1) {
+            const ellipsis = document.createElement('span');
+            ellipsis.className = 'page-ellipsis';
+            ellipsis.textContent = '...';
+            pageNumbersContainer.appendChild(ellipsis);
+        }
+        // Evita duplicar o último botão se já estiver na faixa
+        if (endPage < totalPages) {
+             createPageButton(totalPages, pageNumbersContainer);
+        }
+    }
+}
+
+/**
+ * Atualiza o estado (disabled) dos botões Anterior/Próxima e renderiza os números.
+ */
+function updatePagination(prev: number | null, next: number | null) {
+    prevPageButton.disabled = !prev;
+    nextPageButton.disabled = !next;
+    renderPageNumbers(); // Gera os botões de número
+}
+
+// =========================================================
+// 4. LÓGICA DE RENDERIZAÇÃO DE CARDS E TOOLTIP
+// =========================================================
+
 function renderCharacters(characters: any[]) {
     charactersContainer.innerHTML = '';
     
@@ -105,27 +229,74 @@ function renderCharacters(characters: any[]) {
         const characterCard = document.createElement('div');
         characterCard.classList.add('character-card');
         
-        // Efeito de animação em cascata
         characterCard.style.animationDelay = `${index * 0.1}s`;
 
-        characterCard.addEventListener('click', () => {
-            showCharacterDetails(character.id);
-        });
-        
-        const statusColor = character.status === 'Alive' ? 'green' : 'red';
-        
+        // Eventos de interatividade
+        characterCard.addEventListener('click', () => { showCharacterDetails(character.id); });
+        characterCard.addEventListener('mouseenter', (event) => { showTooltip(character, event.clientX, event.clientY); });
+        characterCard.addEventListener('mousemove', (event) => { moveTooltip(event.clientX, event.clientY); });
+        characterCard.addEventListener('mouseleave', () => { hideTooltip(); });
+
+        // HTML do Card
         characterCard.innerHTML = `
-            <img src="${character.image}" alt="${character.name}" style="border: 2px solid ${statusColor};">
+            <img src="${character.image}" alt="${character.name}">
             <h3>${character.name}</h3>
-            <p>Status: ${character.status}</p>
-            <p>Espécie: ${character.species}</p>
+            <p class="species-text">${character.species}</p>
         `;
         
         charactersContainer.appendChild(characterCard);
     });
 }
 
-// Função para exibir os detalhes do personagem no modal
+function showTooltip(character: any, x: number, y: number) {
+    if (!globalTooltip) return;
+
+    const statusClass = character.status;
+
+    // Atualiza o conteúdo do tooltip (status discreto)
+      globalTooltip.innerHTML = `
+        <span class="status-indicator ${statusClass}">
+            ${character.status}
+        </span>
+    `;
+
+    moveTooltip(x, y);
+    globalTooltip.classList.add('tooltip-visible');
+}
+
+function moveTooltip(x: number, y: number) {
+    if (!globalTooltip) return;
+    
+    const offsetX = 15;
+    const offsetY = 15; 
+
+    let top = y + offsetY;
+    let left = x + offsetX;
+    
+    const tooltipRect = globalTooltip.getBoundingClientRect();
+
+    // Lógica de limite (para não sair da tela)
+    if (left + tooltipRect.width > window.innerWidth) {
+        left = x - tooltipRect.width - offsetX;
+    }
+    
+    if (top + tooltipRect.height > window.innerHeight) {
+        top = y - tooltipRect.height - offsetY;
+    }
+
+    globalTooltip.style.top = `${top}px`;
+    globalTooltip.style.left = `${left}px`;
+}
+
+function hideTooltip() {
+    if (!globalTooltip) return;
+    globalTooltip.classList.remove('tooltip-visible');
+}
+
+// =========================================================
+// 5. LÓGICA DO MODAL DE DETALHES
+// =========================================================
+
 async function showCharacterDetails(id: string) {
     const query = `
       query GetCharacterById($id: ID!) {
@@ -177,7 +348,11 @@ async function showCharacterDetails(id: string) {
     }
 }
 
-// Inicialização da biblioteca de partículas
+
+// =========================================================
+// 6. INICIALIZAÇÃO (Particles.js)
+// =========================================================
+
 if (typeof particlesJS !== 'undefined') {
     particlesJS('particles-js', {
       "particles": {
