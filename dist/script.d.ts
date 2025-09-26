@@ -3,6 +3,7 @@ declare const searchInput: HTMLInputElement;
 declare const searchButton: HTMLButtonElement;
 declare const charactersContainer: HTMLElement;
 declare const modal: HTMLElement;
+declare const modalImageContainer: HTMLElement;
 declare const detailsContainer: HTMLElement;
 declare const closeButton: HTMLElement;
 declare const prevPageButton: HTMLButtonElement;

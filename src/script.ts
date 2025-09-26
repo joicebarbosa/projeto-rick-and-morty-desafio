@@ -4,6 +4,9 @@ const searchInput = document.getElementById('search-input') as HTMLInputElement;
 const searchButton = document.getElementById('search-button') as HTMLButtonElement;
 const charactersContainer = document.getElementById('characters-container') as HTMLElement;
 const modal = document.getElementById('modal') as HTMLElement;
+
+// Elementos do Modal (Declaração única)
+const modalImageContainer = document.getElementById('modal-image-container') as HTMLElement;
 const detailsContainer = document.getElementById('character-details') as HTMLElement;
 const closeButton = document.querySelector('.close-button') as HTMLElement;
 
@@ -38,7 +41,6 @@ nextPageButton.addEventListener('click', async () => {
     if (characterName && currentPage < totalPages) { 
         currentPage++;
         await fetchCharacters(characterName, currentPage);
-        // Não precisamos chamar updatePagination/renderPageNumbers aqui, pois já são chamados em fetchCharacters
     }
 });
 
@@ -47,12 +49,18 @@ prevPageButton.addEventListener('click', async () => {
     if (characterName && currentPage > 1) { 
         currentPage--;
         await fetchCharacters(characterName, currentPage);
-        // Não precisamos chamar updatePagination/renderPageNumbers aqui, pois já são chamados em fetchCharacters
     }
 });
 
 closeButton.addEventListener('click', () => {
     modal.classList.remove('modal-visible');
+});
+
+// Fecha o modal ao clicar fora dele
+modal.addEventListener('click', (event) => {
+    if (event.target === modal) {
+        modal.classList.remove('modal-visible');
+    }
 });
 
 // =========================================================
@@ -196,15 +204,18 @@ function renderPageNumbers() {
 
     // 3. Adiciona a última página e reticências se necessário
     if (endPage < totalPages) {
-        if (endPage < totalPages - 1) {
-            const ellipsis = document.createElement('span');
-            ellipsis.className = 'page-ellipsis';
-            ellipsis.textContent = '...';
-            pageNumbersContainer.appendChild(ellipsis);
-        }
-        // Evita duplicar o último botão se já estiver na faixa
-        if (endPage < totalPages) {
-             createPageButton(totalPages, pageNumbersContainer);
+        // Verifica se a última página não foi adicionada pela faixa
+        if (endPage < totalPages) { 
+             if (endPage < totalPages - 1) {
+                const ellipsis = document.createElement('span');
+                ellipsis.className = 'page-ellipsis';
+                ellipsis.textContent = '...';
+                pageNumbersContainer.appendChild(ellipsis);
+            }
+            // Adiciona a última página se ela não for o final da faixa
+            if (endPage !== totalPages) { 
+                createPageButton(totalPages, pageNumbersContainer);
+            }
         }
     }
 }
@@ -294,7 +305,7 @@ function hideTooltip() {
 }
 
 // =========================================================
-// 5. LÓGICA DO MODAL DE DETALHES
+// 5. LÓGICA DO MODAL DE DETALHES (CORRIGIDO)
 // =========================================================
 
 async function showCharacterDetails(id: string) {
@@ -320,9 +331,7 @@ async function showCharacterDetails(id: string) {
     try {
         const response = await fetch('https://rickandmortyapi.com/graphql', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ query, variables }),
         });
     
@@ -333,9 +342,17 @@ async function showCharacterDetails(id: string) {
         const data = await response.json();
         const character = data.data.character;
     
-        detailsContainer.innerHTML = `
-            <h2>${character.name}</h2>
+        // 1. INJETA A IMAGEM NO CONTAINER FLUTUANTE
+        modalImageContainer.innerHTML = `
             <img src="${character.image}" alt="${character.name}">
+            <span class="image-label">${character.name}</span>
+            <span class="image-sub-label">${character.species}</span>
+        `;
+        
+        // 2. INJETA OS DETALHES NA FICHA (Mantendo o estilo futurista)
+        detailsContainer.innerHTML = `
+            <h2 class="ficha-title">DETALHES DA UNIDADE</h2>
+            
             <p><strong>Status:</strong> ${character.status}</p>
             <p><strong>Espécie:</strong> ${character.species}</p>
             <p><strong>Origem:</strong> ${character.origin.name}</p>
@@ -345,6 +362,9 @@ async function showCharacterDetails(id: string) {
         modal.classList.add('modal-visible');
     } catch (error) {
         console.error('Falha ao buscar detalhes do personagem:', error);
+        // Opcional: mostrar um erro simples no modal
+        detailsContainer.innerHTML = `<h2 class="ficha-title">ERRO</h2><p>Não foi possível carregar os detalhes do personagem.</p>`;
+        modal.classList.add('modal-visible');
     }
 }
 

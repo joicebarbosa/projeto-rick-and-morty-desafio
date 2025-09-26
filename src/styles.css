@@ -40,11 +40,16 @@ body {
 .logo {
     width: 100%;
     max-width: 500px;
+    filter: drop-shadow(0 0 5px #00e676);
 }
 
-.search-form {
+/* ------------------------------------------------ */
+/* ESTILOS DA BUSCA */
+/* ------------------------------------------------ */
+
+#search-form { 
     width: 100%;
-    max-width: 300px; 
+    max-width: 500px; 
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -52,28 +57,29 @@ body {
     margin-top: 20px;
 }
 
-.search-input {
+#search-input { 
     flex-grow: 1;
     padding: 10px;
     border-radius: 5px;
     border: 2px solid #00c853;
     background-color: rgba(30, 30, 30, 0.8);
-    color:#a0a0a0;
+    color:#e0e0e0; 
     font-size: 1.1em;
     text-align: left;
     outline: none;
-    transition: border-color 0.3s ease;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
-.search-input::placeholder {
+#search-input::placeholder {
     color: #a0a0a0;
 }
 
-.search-input:focus {
+#search-input:focus {
     border-color: #00e676;
+    box-shadow: 0 0 10px rgba(0, 230, 118, 0.7); 
 }
 
-.search-button {
+#search-button { 
     padding: 12px 25px;
     border: none;
     background-color: #00c853;
@@ -84,24 +90,25 @@ body {
     transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
-.search-button:hover {
+#search-button:hover {
     background-color: #00e676;
     transform: scale(1.05);
 }
 
 /* ================================================= */
-/* Estilos para os Cards de Personagem e Paginação   */
+/* Estilos para os Cards de Personagem                */
 /* ================================================= */
 
-.characters-container {
+#characters-container { 
+    display: none;
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 15px;
-    padding: 15px;
-    justify-items: center;
-    margin-top: 50px;
-    width: 100%;
-    z-index: 1; 
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    padding: 0 5vw; 
+    max-width: 1400px;
+    margin: 40px auto; 
+    list-style: none;
+    text-align: center;
 }
 
 .character-card {
@@ -110,7 +117,6 @@ body {
     color: #e0e0e0;
     border-radius: 12px;
     overflow: hidden;
-    /* Borda neutra que será substituída pelo efeito futurista */
     border: 1px solid #3c3c3c; 
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     transition: transform 0.3s ease, box-shadow 0.3s ease, z-index 0.3s ease; 
@@ -119,20 +125,17 @@ body {
     text-align: left; 
     padding: 0; 
     position: relative; 
+    cursor: pointer;
 }
 
-/* MELHORIA 1: EFEITO HOVER FUTURISTA (Neon Pulsante) */
 .character-card:hover {
     transform: translateY(-5px) scale(1.02);
-    /* Adiciona um brilho neon verde, dando a sensação de "ligado" */
     box-shadow: 0 0 20px 5px rgba(0, 200, 83, 0.7), 
                 0 0 5px rgba(0, 200, 83, 0.5) inset; 
     z-index: 10; 
-    /* Adiciona a animação de pulso */
     animation: neon-pulse 1.5s infinite alternate; 
 }
 
-/* Animação para o efeito de pulso neon */
 @keyframes neon-pulse {
     from {
         box-shadow: 0 0 10px 3px rgba(0, 200, 83, 0.5);
@@ -153,7 +156,6 @@ body {
     display: block;
 }
 
-/* TÍTULO E SUBTÍTULO (Nome e Espécie) */
 .character-card h3 {
     font-size: 1.2em;
     margin: 5px 10px 2px 10px; 
@@ -174,15 +176,10 @@ body {
     text-align: left; 
 }
 
-.character-card p:not(.species-text) {
-    display: none; 
-}
-
-
 /* ------------------------------------------------ */
-/* Estilos do Tooltip (Popup) - PEQUENO E DISCRETO */
+/* Estilos do Tooltip (Popup) */
 /* ------------------------------------------------ */
-.character-tooltip {
+#global-tooltip { 
     position: fixed; 
     top: -9999px; 
     left: -9999px;
@@ -205,24 +202,21 @@ body {
     opacity: 1 !important;
 }
 
-/* ------------------------------------------------ */
-/* CORES DE STATUS (Com tamanho reduzido)    */
-/* ------------------------------------------------ */
+/* CORES DE STATUS */
 .status-indicator {
-    /* CORREÇÃO 2: REDUÇÃO DE TAMANHO PARA DISCREÇÃO */
-    font-weight: 600; /* Levemente mais fino */
-    font-size: 0.85em; /* Fonte menor */
-    padding: 2px 5px; /* Padding menor */
-    border-radius: 3px; /* Borda menor */
+    font-weight: 600; 
+    font-size: 0.85em; 
+    padding: 2px 5px; 
+    border-radius: 3px; 
     text-transform: uppercase;
-    text-shadow: none; /* Remove o brilho interno do texto */
+    text-shadow: none; 
 }
 
 .status-indicator.Alive {
     background-color: #00c853; 
     border: 1px solid #00e676; 
     color: #fff; 
-    box-shadow: 0 0 5px rgba(0, 230, 118, 0.8); /* Brilho reduzido */
+    box-shadow: 0 0 5px rgba(0, 230, 118, 0.8);
 }
 
 .status-indicator.Dead {
@@ -240,68 +234,43 @@ body {
 }
 
 /* ================================================= */
-/* Melhorias de Efeitos Modernos e Futuristas */
+/* ESTILOS DA PAGINAÇÃO                              */
 /* ================================================= */
 
-/* Foco na Busca: Efeito de borda neon ao clicar na caixa de busca */
-.search-input:focus {
-    border-color: #00e676;
-    box-shadow: 0 0 10px rgba(0, 230, 118, 0.7);
-}
-
-/* Efeito de glitch/shadow no texto principal (Opcional, se houver um H1 fora do card) */
-.logo {
-    /* ... (seus estilos da logo) ... */
-    filter: drop-shadow(0 0 5px #00e676);
-}
-
-
-/* ... (o restante do CSS está correto e foi mantido) ... */
-/* ------------------------------------------------ */
 .pagination-container {
-    /* Layout */
     display: none; 
     justify-content: center;
     align-items: center;
-    gap: 10px; /* Redução de espaço */
-    margin: 30px 0 50px 0; /* Redução de margem */
+    gap: 10px; 
+    margin: 30px 0 50px 0; 
     width: 100%;
     padding: 0 10px;
     box-sizing: border-box;
 }
 
 .page-button {
-    /* Estilo Base: "Display Digital" - REDUÇÃO DE TAMANHO */
-    padding: 8px 15px; /* Padding menor */
+    padding: 8px 15px; 
     border: none;
     border-radius: 4px;
-    
-    /* Fundo escuro levemente transparente */
     background-color: rgba(10, 10, 10, 0.7); 
-    
-    /* Borda e cor do texto do painel de controle */
-    border-bottom: 2px solid #00e676; /* Linha de ênfase inferior mais fina */
+    border-bottom: 2px solid #00e676; 
     color: #00ff7f; 
-    
-    font-size: 0.9em; /* Fonte menor */
+    font-size: 0.9em; 
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
     text-transform: uppercase;
     letter-spacing: 1px;
-    
-    /* Sombra interna para profundidade */
     box-shadow: inset 0 0 4px rgba(0, 255, 127, 0.5);
 }
 
 .page-button:hover:not(:disabled) {
     background-color: #00e676; 
     color: #111; 
-    box-shadow: 0 0 10px rgba(0, 255, 127, 1); /* Brilho reduzido */
-    transform: scale(1.03); /* Pulso reduzido */
+    box-shadow: 0 0 10px rgba(0, 255, 127, 1); 
+    transform: scale(1.03); 
 }
 
-/* Estado Desabilitado (Botões Anterior/Próxima) */
 .page-button:disabled {
     cursor: not-allowed;
     border-bottom: 2px solid #555; 
@@ -312,12 +281,7 @@ body {
     transform: none; 
 }
 
-/* ------------------------------------------------------------------ */
-/* NOVO ESTILO: Botões Individuais de Número de Página (Mini-Display) */
-/* ------------------------------------------------------------------ */
-
 .page-number-button {
-    /* Estilo de botão de número normal (menor) */
     padding: 5px 10px;
     font-size: 0.8em;
     font-weight: 500;
@@ -335,7 +299,6 @@ body {
     box-shadow: 0 0 8px rgba(0, 255, 127, 0.8);
 }
 
-/* Estado Ativo (Página Atual) */
 .page-number-button.active {
     background-color: #00e676;
     color: #111;
@@ -345,88 +308,328 @@ body {
     cursor: default;
 }
 
-/* Botões de reticências (...) para indicar páginas ocultas */
 .page-ellipsis {
     color: #a0a0a0;
     font-size: 1em;
     padding: 5px;
-    user-select: none; /* Não permite selecionar o texto */
-}
-
-/* Responsividade para telas menores */
-@media (max-width: 600px) {
-    .pagination-container {
-        gap: 15px;
-    }
-    .page-button {
-        padding: 8px 15px;
-        font-size: 0.9em;
-    }
+    user-select: none;
 }
 
 /* ================================================= */
-/* Estilos para o Modal de Detalhes                  */
+/* ESTILOS DO MODAL E DETALHES (HOLOGRÁFICO V4.1 - PARTÍCULAS VISÍVEIS)  */
 /* ================================================= */
 
 .modal {
-    display: none;
     position: fixed;
-    z-index: 1;
-    left: 0;
     top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
-    overflow: auto;
-    background-color: rgba(0, 0, 0, 0.7);
+    background-color: rgba(0, 0, 0, 0.8); 
+    display: flex;
     justify-content: center;
     align-items: center;
-}
-
-.modal-content {
-    background-color: #fefefe;
-    padding: 20px;
-    border-radius: 10px;
-    width: 80%;
-    max-width: 500px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-    position: relative;
-    text-align: center;
-}
-
-.close-button {
-    color: #aaa;
-    position: absolute;
-    top: 10px;
-    right: 25px;
-    font-size: 28px;
-    font-weight: bold;
-    cursor: pointer;
-}
-
-.close-button:hover,
-.close-button:focus {
-    color: black;
-    text-decoration: none;
-    cursor: pointer;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.4s ease, visibility 0.4s ease;
 }
 
 .modal-visible {
-    display: flex;
+    opacity: 1;
+    visibility: visible;
 }
 
-#character-details img {
-    width: 150px;
-    border-radius: 50%;
-    margin-bottom: 15px;
+.modal-content {
+    /* CORREÇÃO AQUI: Fundo mais transparente para permitir a visualização das partículas */
+    background: rgba(0, 20, 30, 0.45); 
+    border: 2px solid rgba(0, 234, 255, 0.5); 
+    border-radius: 18px; 
+    padding: 30px; 
+    width: 90%;
+    max-width: 800px;
+    min-height: 400px;
+    position: relative;
+    box-shadow: 
+        0 0 40px rgba(0, 234, 255, 0.6), 
+        inset 0 0 20px rgba(0, 234, 255, 0.3), 
+        0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    
+    /* Efeito Glassmorphism mantido */
+    backdrop-filter: blur(15px) saturate(180%); 
+    -webkit-backdrop-filter: blur(15px) saturate(180%);
+
+    display: block; 
+    animation: modalPulse 2.5s infinite alternate ease-in-out; 
+
+    padding-left: 240px; 
 }
 
-@keyframes fadeInAndUp {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
+@keyframes modalPulse {
+    0% {
+        box-shadow: 
+            0 0 30px rgba(0, 234, 255, 0.5), 
+            inset 0 0 15px rgba(0, 234, 255, 0.2);
     }
-    to {
-        opacity: 1;
-        transform: translateY(0);
+    50% {
+        box-shadow: 
+            0 0 50px rgba(0, 234, 255, 0.9), 
+            inset 0 0 25px rgba(0, 234, 255, 0.4);
+    }
+    100% {
+        box-shadow: 
+            0 0 30px rgba(0, 234, 255, 0.5), 
+            inset 0 0 15px rgba(0, 234, 255, 0.2);
+    }
+}
+
+
+/* ------------------------------------------------ */
+/* ESTILO DA IMAGEM FLUTUANTE */
+/* ------------------------------------------------ */
+
+#modal-image-container {
+    position: absolute; 
+    top: 50%; 
+    left: 0; 
+    transform: translate(-50%, -50%); 
+    width: 250px; 
+    height: auto;
+    text-align: center;
+    z-index: 1001; 
+    
+    padding: 10px; 
+    border-radius: 15px; 
+    background: rgba(0, 150, 170, 0.1); 
+    border: 1px solid rgba(0, 234, 255, 0.3); 
+    box-shadow: inset 0 0 15px rgba(0, 234, 255, 0.2); 
+    transition: all 0.3s ease;
+}
+
+#modal-image-container:hover {
+    transform: translate(-50%, -50%) scale(1.03); 
+    box-shadow: 
+        0 0 30px rgba(0, 234, 255, 0.8), 
+        inset 0 0 20px rgba(0, 234, 255, 0.5);
+}
+
+#modal-image-container img {
+    width: 100%;
+    height: auto;
+    border-radius: 12px; 
+    border: 3px solid #00eaff; 
+    box-shadow: 
+        0 0 25px rgba(0, 234, 255, 0.9), 
+        0 0 10px rgba(0, 0, 0, 0.4); 
+    object-fit: cover;
+    transition: transform 0.3s ease; 
+}
+
+.image-label {
+    display: block;
+    margin-top: 15px;
+    color: #00eaff; 
+    font-size: 1.5em; 
+    font-weight: bold;
+    text-shadow: 0 0 10px rgba(0, 234, 255, 0.9);
+    letter-spacing: 1.2px;
+}
+
+.image-sub-label {
+    display: block;
+    color: #a7efff; 
+    font-size: 1.1em; 
+    margin-top: 8px;
+    text-shadow: 0 0 5px rgba(0, 234, 255, 0.7);
+}
+
+/* ------------------------------------------------ */
+/* ESTILOS DA FICHA DE DADOS INTERNA */
+/* ------------------------------------------------ */
+
+.close-button {
+    position: absolute;
+    top: -15px; 
+    right: -15px; 
+    width: 40px;
+    height: 40px;
+    border-radius: 50%; 
+    background: linear-gradient(135deg, #ff4d4d, #cc0000); 
+    color: #fff;
+    font-size: 1.8em;
+    line-height: 40px; 
+    text-align: center;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 
+        0 0 15px rgba(255, 77, 77, 0.8), 
+        inset 0 0 8px rgba(255, 255, 255, 0.5);
+    transition: all 0.3s ease;
+    border: 2px solid rgba(255, 77, 77, 0.5);
+    z-index: 1002; 
+}
+
+.close-button:hover {
+    background: linear-gradient(135deg, #fff, #ff4d4d); 
+    color: #111;
+    transform: scale(1.1) rotate(90deg); 
+    box-shadow: 
+        0 0 25px rgba(255, 77, 77, 1), 
+        inset 0 0 12px rgba(0, 0, 0, 0.7);
+    border-color: #fff;
+}
+
+
+#character-details {
+    color: #e0f7fa; 
+    text-align: left;
+    display: flex; 
+    flex-direction: column;
+    gap: 15px; 
+}
+
+#character-details .ficha-title {
+    font-size: 2em; 
+    color: #00eaff; 
+    margin-top: 0;
+    margin-bottom: 20px; 
+    text-shadow: 0 0 15px rgba(0, 234, 255, 1);
+    border-bottom: 2px solid rgba(0, 234, 255, 0.6); 
+    padding-bottom: 12px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+#character-details p {
+    font-size: 1.1em; 
+    margin: 0; 
+    padding: 0;
+    display: flex; 
+    align-items: baseline;
+    line-height: 1.6; 
+    color: #c0faff; 
+}
+
+#character-details strong {
+    color: #00eaff; 
+    font-weight: bold;
+    display: inline-block;
+    width: 130px; 
+    margin-right: 25px; 
+    text-shadow: 0 0 7px rgba(0, 234, 255, 0.7);
+    text-transform: uppercase;
+    flex-shrink: 0; 
+}
+
+#character-details p:not(:last-child) {
+    border-bottom: 1px dashed rgba(0, 234, 255, 0.15); 
+    padding-bottom: 10px;
+}
+
+
+/* ================================================= */
+/* MEDIA QUERIES (Responsividade do Modal)          */
+/* ================================================= */
+
+@media (max-width: 768px) {
+    .modal-content {
+        padding-left: 30px; 
+        padding: 20px; 
+        max-width: 95%;
+        min-height: auto;
+        gap: 20px;
+        display: block; 
+    }
+
+    #modal-image-container {
+        position: relative; 
+        top: auto;
+        left: auto;
+        transform: translateY(-40px); 
+        width: 70%; 
+        max-width: 200px; 
+        margin: -40px auto 20px auto; 
+        z-index: 1; 
+    }
+    
+    #modal-image-container:hover {
+        transform: translateY(-45px) scale(1.02); 
+    }
+
+    .image-label {
+        font-size: 1.2em;
+        margin-top: 10px;
+    }
+
+    .image-sub-label {
+        font-size: 0.9em;
+        margin-top: 5px;
+    }
+
+    #character-details {
+        margin-left: 0;
+        text-align: center; 
+    }
+
+    #character-details .ficha-title {
+        font-size: 1.6em;
+        margin-bottom: 15px;
+    }
+
+    #character-details p {
+        flex-direction: column; 
+        align-items: center; 
+        font-size: 1em;
+        line-height: 1.3;
+    }
+
+    #character-details strong {
+        width: auto; 
+        margin-right: 0;
+        margin-bottom: 5px; 
+        font-size: 0.9em;
+    }
+
+    .close-button {
+        top: -10px;
+        right: -10px;
+        width: 35px;
+        height: 35px;
+        font-size: 1.5em;
+        line-height: 35px;
+    }
+}
+
+@media (max-width: 600px) {
+    #characters-container {
+        padding: 0 4vw; 
+        gap: 15px;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    }
+
+    #search-form {
+        flex-direction: column; 
+        gap: 10px;
+    }
+    
+    #search-input {
+        width: 80vw; 
+        font-size: 1em;
+    }
+
+    #search-button {
+        width: 80vw; 
+        padding: 10px;
+        font-size: 1em;
+    }
+    
+    .page-button {
+        padding: 5px 10px; 
+        font-size: 0.8em;
+    }
+
+    .page-number-button {
+        padding: 3px 8px; 
+        font-size: 0.7em;
     }
 }
