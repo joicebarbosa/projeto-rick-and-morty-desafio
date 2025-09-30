@@ -1,4 +1,4 @@
-declare var particlesJS: any; // Adicionado para o TypeScript reconhecer a função global
+declare var particlesJS: any; // MANTIDO: Para reconhecer a função global de partículas
 
 const searchInput = document.getElementById('search-input') as HTMLInputElement;
 const searchButton = document.getElementById('search-button') as HTMLButtonElement;
@@ -14,13 +14,13 @@ const closeButton = document.querySelector('.close-button') as HTMLElement;
 const prevPageButton = document.getElementById('prev-page-button') as HTMLButtonElement;
 const nextPageButton = document.getElementById('next-page-button') as HTMLButtonElement;
 const paginationContainer = document.querySelector('.pagination-container') as HTMLElement;
-const pageNumbersContainer = document.getElementById('page-numbers-container') as HTMLElement; // Container para os números dinâmicos
+const pageNumbersContainer = document.getElementById('page-numbers-container') as HTMLElement;
 
 // Elemento do Tooltip Global
 const globalTooltip = document.getElementById('global-tooltip') as HTMLElement; 
 
 let currentPage = 1;
-let totalPages = 1; // Variável para armazenar o número total de páginas
+let totalPages = 1; 
 
 // =========================================================
 // 1. EVENTOS DE NAVEGAÇÃO
@@ -28,25 +28,24 @@ let totalPages = 1; // Variável para armazenar o número total de páginas
 
 searchButton.addEventListener('click', async (event) => {
     event.preventDefault();
-    const characterName = searchInput.value;
+    
+    const characterName = searchInput.value.trim(); 
 
-    if (characterName) {
-        currentPage = 1; // Reseta para a primeira página na busca
-        await fetchCharacters(characterName, currentPage);
-    }
+    currentPage = 1; 
+    await fetchCharacters(characterName, currentPage);
 });
 
 nextPageButton.addEventListener('click', async () => {
-    const characterName = searchInput.value;
-    if (characterName && currentPage < totalPages) { 
+    const characterName = searchInput.value.trim();
+    if (currentPage < totalPages) { 
         currentPage++;
         await fetchCharacters(characterName, currentPage);
     }
 });
 
 prevPageButton.addEventListener('click', async () => {
-    const characterName = searchInput.value;
-    if (characterName && currentPage > 1) { 
+    const characterName = searchInput.value.trim();
+    if (currentPage > 1) { 
         currentPage--;
         await fetchCharacters(characterName, currentPage);
     }
@@ -64,13 +63,22 @@ modal.addEventListener('click', (event) => {
 });
 
 // =========================================================
-// 2. LÓGICA DE BUSCA
+// 2. LÓGICA DE BUSCA (CORREÇÃO FINAL DO ERRO DE CARREGAMENTO)
 // =========================================================
 
 async function fetchCharacters(name: string, page: number) {
+    
+    let filter = '';
+    const variables: { name?: string, page: number } = { page: page };
+
+    if (name) {
+        filter = `filter: { name: $name }`;
+        variables.name = name;
+    }
+
     const query = `
-        query GetCharactersByName($name: String!, $page: Int!) {
-            characters(filter: { name: $name }, page: $page) {
+        query GetCharacters($name: String, $page: Int!) {
+            characters(${filter}, page: $page) {
                 info {
                     next
                     prev
@@ -87,8 +95,6 @@ async function fetchCharacters(name: string, page: number) {
         }
     `;
 
-    const variables = { name: name, page: page };
-
     try {
         const response = await fetch('https://rickandmortyapi.com/graphql', {
             method: 'POST',
@@ -99,21 +105,55 @@ async function fetchCharacters(name: string, page: number) {
         if (!response.ok) throw new Error(`Erro na rede: ${response.statusText}`);
 
         const data = await response.json();
-        const info = data.data.characters.info;
-        const characters = data.data.characters.results;
+        const charactersData = data.data.characters;
         
-        // Atualiza o total de páginas
-        totalPages = info.pages;
+        // 1. VERIFICAÇÃO: Se charactersData vier nulo, é porque não encontrou resultados.
+        if (charactersData === null || !charactersData.results || charactersData.results.length === 0) {
+            
+            if (!name) {
+                // Se o nome está vazio (carregamento inicial), lançamos um erro genérico para ser capturado.
+                throw new Error("LOAD_FAIL_SILENT"); 
+            } else {
+                 // Se houver nome, é uma busca sem resultados.
+                throw new Error(`Nenhum personagem encontrado com o nome: "${name}".`);
+            }
+        }
+
+        const info = charactersData.info;
+        const characters = charactersData.results;
+        
+        // SUCESSO
+        totalPages = info?.pages || 1; 
 
         renderCharacters(characters);
-        updatePagination(info.prev, info.next); 
+        updatePagination(info?.prev || null, info?.next || null); 
 
         charactersContainer.style.display = 'grid'; 
         paginationContainer.style.display = 'flex'; 
 
     } catch (error) {
         console.error('Falha ao buscar personagens:', error);
-        charactersContainer.innerHTML = `<p class="error-message">Nenhum personagem encontrado com o nome "${name}" ou ocorreu um erro.</p>`;
+        
+        const errorMsg = (error instanceof Error) ? error.message : "Erro desconhecido na busca.";
+        
+        // ===============================================
+        // A CORREÇÃO FINAL PARA SILENCIAR O INÍCIO:
+        // Se o 'name' estiver vazio (primeiro carregamento), 
+        // limpamos o container, independentemente do erro.
+        // ===============================================
+        if (!name) {
+            // SILENCIA: Não mostra mensagem, apenas limpa o espaço.
+            charactersContainer.innerHTML = '';
+            
+        } else if (errorMsg.includes("Nenhum personagem")) {
+             // Se for uma busca (com nome) sem resultados.
+             charactersContainer.innerHTML = `<p class="error-message">${errorMsg}</p>`;
+             
+        } else {
+            // Qualquer outro erro de rede que ocorra APÓS a busca inicial (ex: durante paginação).
+            charactersContainer.innerHTML = `<p class="error-message">Erro de carregamento. Verifique a conexão e tente recarregar a página.</p>`;
+        }
+        
         paginationContainer.style.display = 'none';
         totalPages = 1; 
         currentPage = 1;
@@ -129,7 +169,7 @@ async function fetchCharacters(name: string, page: number) {
  */
 async function goToPage(pageNumber: number) {
     if (pageNumber !== currentPage && pageNumber > 0 && pageNumber <= totalPages) {
-        const characterName = searchInput.value;
+        const characterName = searchInput.value.trim(); 
         currentPage = pageNumber;
         await fetchCharacters(characterName, currentPage);
     }
@@ -158,35 +198,30 @@ function createPageButton(pageNumber: number, container: HTMLElement) {
 function renderPageNumbers() {
     pageNumbersContainer.innerHTML = '';
     
-    // Se não houver páginas, sai da função
     if (totalPages <= 1) return;
 
-    const maxButtons = 5; // Máximo de números de página visíveis (além da primeira/última)
+    const maxButtons = 5; 
     let startPage = 1;
     let endPage = totalPages;
 
     if (totalPages > maxButtons) {
-        // Lógica para calcular a faixa de exibição
         let range = Math.floor(maxButtons / 2);
         startPage = currentPage - range;
         endPage = currentPage + range;
 
-        // Ajuste para o início
         if (startPage < 1) {
             startPage = 1;
             endPage = maxButtons;
         }
 
-        // Ajuste para o final
         if (endPage > totalPages) {
             endPage = totalPages;
             startPage = totalPages - maxButtons + 1;
         }
         
-        if (startPage < 1) startPage = 1; // Última verificação para garantir o mínimo
+        if (startPage < 1) startPage = 1; 
     }
 
-    // 1. Adiciona a primeira página e reticências se necessário
     if (startPage > 1) {
         createPageButton(1, pageNumbersContainer);
         if (startPage > 2) {
@@ -197,24 +232,20 @@ function renderPageNumbers() {
         }
     }
 
-    // 2. Adiciona os botões centrais/da faixa
     for (let i = startPage; i <= endPage; i++) {
         createPageButton(i, pageNumbersContainer);
     }
 
-    // 3. Adiciona a última página e reticências se necessário
     if (endPage < totalPages) {
-        // Verifica se a última página não foi adicionada pela faixa
         if (endPage < totalPages) { 
              if (endPage < totalPages - 1) {
-                const ellipsis = document.createElement('span');
-                ellipsis.className = 'page-ellipsis';
-                ellipsis.textContent = '...';
-                pageNumbersContainer.appendChild(ellipsis);
-            }
-            // Adiciona a última página se ela não for o final da faixa
+                 const ellipsis = document.createElement('span');
+                 ellipsis.className = 'page-ellipsis';
+                 ellipsis.textContent = '...';
+                 pageNumbersContainer.appendChild(ellipsis);
+             }
             if (endPage !== totalPages) { 
-                createPageButton(totalPages, pageNumbersContainer);
+                 createPageButton(totalPages, pageNumbersContainer);
             }
         }
     }
@@ -226,7 +257,7 @@ function renderPageNumbers() {
 function updatePagination(prev: number | null, next: number | null) {
     prevPageButton.disabled = !prev;
     nextPageButton.disabled = !next;
-    renderPageNumbers(); // Gera os botões de número
+    renderPageNumbers(); 
 }
 
 // =========================================================
@@ -264,7 +295,6 @@ function showTooltip(character: any, x: number, y: number) {
 
     const statusClass = character.status;
 
-    // Atualiza o conteúdo do tooltip (status discreto)
       globalTooltip.innerHTML = `
         <span class="status-indicator ${statusClass}">
             ${character.status}
@@ -286,7 +316,6 @@ function moveTooltip(x: number, y: number) {
     
     const tooltipRect = globalTooltip.getBoundingClientRect();
 
-    // Lógica de limite (para não sair da tela)
     if (left + tooltipRect.width > window.innerWidth) {
         left = x - tooltipRect.width - offsetX;
     }
@@ -305,7 +334,7 @@ function hideTooltip() {
 }
 
 // =========================================================
-// 5. LÓGICA DO MODAL DE DETALHES (CORRIGIDO)
+// 5. LÓGICA DO MODAL DE DETALHES 
 // =========================================================
 
 async function showCharacterDetails(id: string) {
@@ -362,7 +391,6 @@ async function showCharacterDetails(id: string) {
         modal.classList.add('modal-visible');
     } catch (error) {
         console.error('Falha ao buscar detalhes do personagem:', error);
-        // Opcional: mostrar um erro simples no modal
         detailsContainer.innerHTML = `<h2 class="ficha-title">ERRO</h2><p>Não foi possível carregar os detalhes do personagem.</p>`;
         modal.classList.add('modal-visible');
     }
@@ -370,7 +398,7 @@ async function showCharacterDetails(id: string) {
 
 
 // =========================================================
-// 6. INICIALIZAÇÃO (Particles.js)
+// 6. INICIALIZAÇÃO (Particles.js) - MANTIDO
 // =========================================================
 
 if (typeof particlesJS !== 'undefined') {
@@ -421,3 +449,21 @@ if (typeof particlesJS !== 'undefined') {
       }
     });
 }
+
+// =========================================================
+// 7. INICIALIZAÇÃO DA APLICAÇÃO
+// =========================================================
+
+/**
+ * Função para carregar os personagens iniciais (catálogo completo)
+ */
+async function initializeApp() {
+    searchInput.value = '';
+    
+    // Chamada inicial para carregar todos os personagens
+    currentPage = 1;
+    await fetchCharacters('', currentPage);
+}
+
+// Inicia a aplicação automaticamente ao carregar a página
+document.addEventListener('DOMContentLoaded', initializeApp);

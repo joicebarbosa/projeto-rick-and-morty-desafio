@@ -35,4 +35,8 @@ declare function showTooltip(character: any, x: number, y: number): void;
 declare function moveTooltip(x: number, y: number): void;
 declare function hideTooltip(): void;
 declare function showCharacterDetails(id: string): Promise<void>;
+/**
+ * Função para carregar os personagens iniciais (catálogo completo)
+ */
+declare function initializeApp(): Promise<void>;
 //# sourceMappingURL=script.d.ts.map

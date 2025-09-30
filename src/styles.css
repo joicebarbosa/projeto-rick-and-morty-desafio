@@ -1,5 +1,6 @@
 /* ================================================= */
-/* Estilos da página principal (Body e Container)    */
+/* Estilos da página principal (Body e Container)    */
+/* (Mantidos) */
 /* ================================================= */
 
 #particles-js {
@@ -44,7 +45,7 @@ body {
 }
 
 /* ------------------------------------------------ */
-/* ESTILOS DA BUSCA */
+/* ESTILOS DA BUSCA (Mantidos) */
 /* ------------------------------------------------ */
 
 #search-form { 
@@ -96,11 +97,10 @@ body {
 }
 
 /* ================================================= */
-/* Estilos para os Cards de Personagem                */
+/* Estilos para os Cards de Personagem (Mantidos)    */
 /* ================================================= */
 
 #characters-container { 
-    display: none;
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 20px;
@@ -148,7 +148,7 @@ body {
 
 .character-card img {
     width: 100%;
-    height: auto;
+    height: 180px; 
     object-fit: cover;
     border: none; 
     border-radius: 0; 
@@ -177,8 +177,9 @@ body {
 }
 
 /* ------------------------------------------------ */
-/* Estilos do Tooltip (Popup) */
+/* Estilos do Tooltip & Status (Mantidos)            */
 /* ------------------------------------------------ */
+
 #global-tooltip { 
     position: fixed; 
     top: -9999px; 
@@ -202,7 +203,6 @@ body {
     opacity: 1 !important;
 }
 
-/* CORES DE STATUS */
 .status-indicator {
     font-weight: 600; 
     font-size: 0.85em; 
@@ -234,7 +234,7 @@ body {
 }
 
 /* ================================================= */
-/* ESTILOS DA PAGINAÇÃO                              */
+/* ESTILOS DA PAGINAÇÃO (Mantidos)                   */
 /* ================================================= */
 
 .pagination-container {
@@ -316,7 +316,7 @@ body {
 }
 
 /* ================================================= */
-/* ESTILOS DO MODAL E DETALHES (HOLOGRÁFICO V4.1 - PARTÍCULAS VISÍVEIS)  */
+/* ESTILOS DO MODAL (PADRÃO: DESKTOP/TELA GRANDE)    */
 /* ================================================= */
 
 .modal {
@@ -341,53 +341,31 @@ body {
 }
 
 .modal-content {
-    /* CORREÇÃO AQUI: Fundo mais transparente para permitir a visualização das partículas */
     background: rgba(0, 20, 30, 0.45); 
     border: 2px solid rgba(0, 234, 255, 0.5); 
     border-radius: 18px; 
     padding: 30px; 
     width: 90%;
     max-width: 800px;
-    min-height: 400px;
+    min-height: 400px; 
     position: relative;
     box-shadow: 
         0 0 40px rgba(0, 234, 255, 0.6), 
         inset 0 0 20px rgba(0, 234, 255, 0.3), 
         0 8px 32px 0 rgba(0, 0, 0, 0.37);
     
-    /* Efeito Glassmorphism mantido */
     backdrop-filter: blur(15px) saturate(180%); 
     -webkit-backdrop-filter: blur(15px) saturate(180%);
 
-    display: block; 
-    animation: modalPulse 2.5s infinite alternate ease-in-out; 
-
+    /* PADRÃO DESKTOP: Espaço para a imagem flutuante */
     padding-left: 240px; 
+    box-sizing: border-box; 
+    
+    /* Garante que o layout de detalhes fique na direita */
+    display: block; 
 }
 
-@keyframes modalPulse {
-    0% {
-        box-shadow: 
-            0 0 30px rgba(0, 234, 255, 0.5), 
-            inset 0 0 15px rgba(0, 234, 255, 0.2);
-    }
-    50% {
-        box-shadow: 
-            0 0 50px rgba(0, 234, 255, 0.9), 
-            inset 0 0 25px rgba(0, 234, 255, 0.4);
-    }
-    100% {
-        box-shadow: 
-            0 0 30px rgba(0, 234, 255, 0.5), 
-            inset 0 0 15px rgba(0, 234, 255, 0.2);
-    }
-}
-
-
-/* ------------------------------------------------ */
-/* ESTILO DA IMAGEM FLUTUANTE */
-/* ------------------------------------------------ */
-
+/* IMAGEM FLUTUANTE (Desktop) */
 #modal-image-container {
     position: absolute; 
     top: 50%; 
@@ -425,28 +403,6 @@ body {
     transition: transform 0.3s ease; 
 }
 
-.image-label {
-    display: block;
-    margin-top: 15px;
-    color: #00eaff; 
-    font-size: 1.5em; 
-    font-weight: bold;
-    text-shadow: 0 0 10px rgba(0, 234, 255, 0.9);
-    letter-spacing: 1.2px;
-}
-
-.image-sub-label {
-    display: block;
-    color: #a7efff; 
-    font-size: 1.1em; 
-    margin-top: 8px;
-    text-shadow: 0 0 5px rgba(0, 234, 255, 0.7);
-}
-
-/* ------------------------------------------------ */
-/* ESTILOS DA FICHA DE DADOS INTERNA */
-/* ------------------------------------------------ */
-
 .close-button {
     position: absolute;
     top: -15px; 
@@ -468,17 +424,6 @@ body {
     border: 2px solid rgba(255, 77, 77, 0.5);
     z-index: 1002; 
 }
-
-.close-button:hover {
-    background: linear-gradient(135deg, #fff, #ff4d4d); 
-    color: #111;
-    transform: scale(1.1) rotate(90deg); 
-    box-shadow: 
-        0 0 25px rgba(255, 77, 77, 1), 
-        inset 0 0 12px rgba(0, 0, 0, 0.7);
-    border-color: #fff;
-}
-
 
 #character-details {
     color: #e0f7fa; 
@@ -528,68 +473,78 @@ body {
 
 
 /* ================================================= */
-/* MEDIA QUERIES (Responsividade do Modal)          */
+/* MEDIA QUERIES (CORREÇÃO PARA TELAS MÉDIAS E MOBILE) */
 /* ================================================= */
 
-@media (max-width: 768px) {
+/* MUDANÇA CRÍTICA: Aplica o layout de empilhamento vertical (Mobile) em telas <= 900px */
+@media (max-width: 900px) {
+    
+    /* 1. Modal Content: Zera as regras de Desktop e muda para Flexbox vertical */
     .modal-content {
-        padding-left: 30px; 
+        /* CRÍTICO: Anula o padding de desktop para evitar corte */
         padding: 20px; 
         max-width: 95%;
         min-height: auto;
-        gap: 20px;
-        display: block; 
+        
+        /* Limita a altura e permite rolagem vertical (para conteúdo grande) */
+        max-height: 90vh; 
+        overflow-y: auto; 
+        
+        /* Layout vertical que empilha a imagem e os detalhes */
+        display: flex;
+        flex-direction: column;
+        align-items: center;
     }
-
+    
+    /* 2. Imagem: Remove flutuação absoluta e centraliza no novo fluxo */
     #modal-image-container {
+        /* CRÍTICO: Remove as regras de flutuação absoluta */
         position: relative; 
         top: auto;
         left: auto;
-        transform: translateY(-40px); 
-        width: 70%; 
-        max-width: 200px; 
-        margin: -40px auto 20px auto; 
-        z-index: 1; 
+        transform: none; 
+        
+        width: 80%; 
+        max-width: 250px; 
+        /* Centraliza a imagem e adiciona margem inferior */
+        margin: 0 auto 20px auto; 
+        z-index: 1001; 
+        box-shadow: none; 
+        background: rgba(0, 150, 170, 0.05);
     }
     
     #modal-image-container:hover {
-        transform: translateY(-45px) scale(1.02); 
+        transform: none; 
     }
-
-    .image-label {
-        font-size: 1.2em;
-        margin-top: 10px;
-    }
-
-    .image-sub-label {
-        font-size: 0.9em;
-        margin-top: 5px;
-    }
-
+    
+    /* 3. Detalhes: Adaptação da ficha para telas menores */
     #character-details {
-        margin-left: 0;
-        text-align: center; 
+        width: 100%;
+        margin-top: 0;
+        text-align: left; 
     }
 
     #character-details .ficha-title {
         font-size: 1.6em;
         margin-bottom: 15px;
+        text-align: center; 
     }
 
     #character-details p {
-        flex-direction: column; 
-        align-items: center; 
+        flex-direction: column; /* Label em cima do Valor */
+        align-items: flex-start; /* Alinha a ficha à esquerda */
         font-size: 1em;
-        line-height: 1.3;
+        padding-bottom: 8px; 
     }
 
     #character-details strong {
         width: auto; 
         margin-right: 0;
-        margin-bottom: 5px; 
+        margin-bottom: 3px; 
         font-size: 0.9em;
     }
 
+    /* 4. Botão de Fechar */
     .close-button {
         top: -10px;
         right: -10px;
@@ -600,11 +555,17 @@ body {
     }
 }
 
+/* Regras para telas muito pequenas (Smartphones) */
 @media (max-width: 600px) {
+    body {
+        padding: 10px;
+    }
+    
     #characters-container {
         padding: 0 4vw; 
         gap: 15px;
-        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        /* Garante que os cards não fiquem muito pequenos */
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
     }
 
     #search-form {
@@ -612,24 +573,14 @@ body {
         gap: 10px;
     }
     
-    #search-input {
-        width: 80vw; 
-        font-size: 1em;
-    }
-
+    #search-input,
     #search-button {
-        width: 80vw; 
-        padding: 10px;
+        width: 90vw; 
+        max-width: 400px;
         font-size: 1em;
     }
     
-    .page-button {
-        padding: 5px 10px; 
-        font-size: 0.8em;
-    }
-
-    .page-number-button {
-        padding: 3px 8px; 
-        font-size: 0.7em;
+    .character-card img {
+        height: 140px;
     }
 }
